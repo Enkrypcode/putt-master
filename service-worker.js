@@ -2,6 +2,7 @@ const CACHE_NAME = "putting-v1";
 
 const FILES_TO_CACHE = [
     "./",
+    "./logo.png",
     "./index.html",
     "./manifest.json",
     "./icon-192.png",
