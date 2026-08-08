@@ -406,14 +406,350 @@
     .btn-sm { padding: 3px 8px; font-size: 9px; }
     .score-big { font-size: 36px; }
   }
+
+  /* ═══════════════════════════════════════
+   LIVE VIEWER
+   ═══════════════════════════════════════ */
+
+  #liveViewer {
+    display: none;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--off-white);
+  }
+
+  body.viewer-mode > *:not(#liveViewer) {
+    display: none !important;
+  }
+
+  body.viewer-mode #liveViewer {
+    display: block;
+  }
+
+  .live-header {
+    padding: 24px 28px 20px;
+    border-bottom: 2px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .live-brand {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .live-logo {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+  }
+
+  .live-title {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .live-subtitle {
+    margin-top: 6px;
+    font-size: 14px;
+    letter-spacing: 3px;
+    color: var(--off-white);
+    opacity: 0.8;
+  }
+
+  .live-status {
+    color: #55c878;
+    font-size: 14px;
+    letter-spacing: 2px;
+  }
+
+  .live-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 28px 24px 50px;
+  }
+
+  .live-info {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .live-info-box {
+    padding: 18px;
+    border: 1px solid rgba(245, 200, 66, 0.2);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.02);
+    text-align: center;
+  }
+
+  .live-info-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    opacity: 0.6;
+    text-transform: uppercase;
+  }
+
+  .live-info-value {
+    margin-top: 8px;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--gold);
+  }
+
+  .live-table {
+    border: 1px solid rgba(245, 200, 66, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .live-table-head,
+  .live-player {
+    display: grid;
+    grid-template-columns: 80px 1fr 140px;
+    align-items: center;
+  }
+
+  .live-table-head {
+    padding: 18px 24px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    opacity: 0.7;
+    border-bottom: 1px solid rgba(245, 200, 66, 0.15);
+  }
+
+  .live-player {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .live-player:last-child {
+    border-bottom: none;
+  }
+
+  .live-rank {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--gold);
+  }
+
+  .live-player-name {
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .live-score {
+    justify-self: end;
+    min-width: 90px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--gold);
+    background: rgba(50,120,60,0.25);
+  }
+
+  .live-score.negative {
+    color: #ef5350;
+    background: rgba(180,40,40,0.2);
+  }
+
+  .live-footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(245,200,66,0.15);
+    text-align: center;
+    opacity: 0.55;
+    font-size: 12px;
+    letter-spacing: 2px;
+  }
+
+  @media (max-width: 600px) {
+
+    .live-header {
+      padding: 18px 16px;
+    }
+
+    .live-logo {
+      width: 52px;
+      height: 52px;
+    }
+
+    .live-title {
+      font-size: 18px;
+      letter-spacing: 2px;
+    }
+
+    .live-subtitle {
+      font-size: 10px;
+      letter-spacing: 2px;
+    }
+
+    .live-info {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .live-info-box {
+      padding: 12px 6px;
+    }
+
+    .live-info-value {
+      font-size: 20px;
+    }
+
+    .live-table-head,
+    .live-player {
+      grid-template-columns: 50px 1fr 90px;
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .live-player-name {
+      font-size: 16px;
+    }
+
+    .live-score {
+      min-width: 65px;
+      padding: 10px;
+      font-size: 20px;
+    }
+  }
 </style>
 </head>
 <body>
+  <div id="liveViewer">
+
+  <div class="live-header">
+
+    <div class="live-brand">
+      <img src="/logo.png" class="live-logo" alt="BW Putt Master">
+
+      <div>
+        <div class="live-title">
+          BW Putt Master
+        </div>
+
+        <div class="live-subtitle">
+          LIVE LEADERBOARD
+          <span class="live-status">● LIVE</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <div class="live-content">
+
+    <div class="live-info">
+
+      <div class="live-info-box">
+        <div class="live-info-label">
+          Putaran
+        </div>
+
+        <div class="live-info-value">
+          6
+        </div>
+      </div>
+
+
+      <div class="live-info-box">
+        <div class="live-info-label">
+          Pemain
+        </div>
+
+        <div class="live-info-value">
+          6
+        </div>
+      </div>
+
+
+      <div class="live-info-box">
+        <div class="live-info-label">
+          Update Terakhir
+        </div>
+
+        <div class="live-info-value" style="font-size:18px">
+          LIVE
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="live-table">
+
+      <div class="live-table-head">
+        <div>POS</div>
+        <div>PEMAIN</div>
+        <div style="text-align:right">SKOR</div>
+      </div>
+
+
+      <div class="live-player">
+        <div class="live-rank">1</div>
+        <div class="live-player-name">Fikri</div>
+        <div class="live-score">+8</div>
+      </div>
+
+
+      <div class="live-player">
+        <div class="live-rank">2</div>
+        <div class="live-player-name">Kukuh</div>
+        <div class="live-score">+4</div>
+      </div>
+
+
+      <div class="live-player">
+        <div class="live-rank">3</div>
+        <div class="live-player-name">Budi</div>
+        <div class="live-score">+2</div>
+      </div>
+
+
+      <div class="live-player">
+        <div class="live-rank">4</div>
+        <div class="live-player-name">Dimas</div>
+        <div class="live-score">+6</div>
+      </div>
+
+
+      <div class="live-player">
+        <div class="live-rank">5</div>
+        <div class="live-player-name">Rian</div>
+        <div class="live-score">+10</div>
+      </div>
+
+
+      <div class="live-player">
+        <div class="live-rank">6</div>
+        <div class="live-player-name">Alex</div>
+        <div class="live-score negative">-4</div>
+      </div>
+
+    </div>
+
+
+    <div class="live-footer">
+      BW PUTT MASTER · LIVE SCORING
+    </div>
+
+  </div>
+
+</div>
 
 <header>
     <div class="logo-block">
         <img
-            src="logo.png"
+            src="/logo.png"
             alt="BW Putt Master"
             class="app-logo">
         <div>
@@ -996,6 +1332,13 @@ function showToast(msg, cls='') {
 }
 function toggleRules() { document.getElementById('rulesBox').classList.toggle('visible'); }
 
+// ── LIVE VIEWER MODE ──
+const isLiveViewer = window.location.pathname.startsWith('/live/');
+
+if (isLiveViewer) {
+    document.body.classList.add('viewer-mode');
+}
+
 // ── INIT ──
 loadGame();
 
@@ -1006,7 +1349,7 @@ if(players.length===0){
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js")
+        navigator.serviceWorker.register("/service-worker.js")
             .then(() => console.log("Service Worker Registered"))
             .catch(err => console.log(err));
     });
