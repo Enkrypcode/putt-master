@@ -1332,14 +1332,12 @@ function showToast(msg, cls='') {
 }
 function toggleRules() { document.getElementById('rulesBox').classList.toggle('visible'); }
 
-// ── LIVE VIEWER MODE ──
 const isLiveViewer = window.location.pathname.startsWith('/live/');
 
 if (isLiveViewer) {
     document.body.classList.add('viewer-mode');
 }
 
-// ── INIT ──
 loadGame();
 
 if(players.length===0){
