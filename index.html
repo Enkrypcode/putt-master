@@ -2242,17 +2242,27 @@ async function createMatch() {
 
     // Player / Trial tidak boleh membuat Live Match
     if (appMode !== 'operator') {
-
         showToast(
             '🔒 Fitur Live hanya tersedia untuk Operator'
         );
+        return;
+    }
 
+    // PIN tambahan sebelum membuat Match
+    const pin = prompt('🔐 Masukkan PIN Operator untuk membuat Match:');
+
+    if (pin === null) {
+        return;
+    }
+
+    if (pin !== OPERATOR_PIN) {
+        showToast('❌ PIN Operator salah');
         return;
     }
 
     const btn =
         document.getElementById('btnCreateMatch');
-
+        
   btn.disabled = true;
   btn.textContent = '⏳ MEMBUAT...';
 
