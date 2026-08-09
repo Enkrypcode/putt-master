@@ -928,8 +928,9 @@ body.viewer-mode #liveViewer {
 
 }
 
+
 /* ═══════════════════════════════════════
-   OPERATOR ACCESS
+   ACCESS MODE
 ═══════════════════════════════════════ */
 
 #operatorGate {
@@ -947,58 +948,170 @@ body.viewer-mode #liveViewer {
         radial-gradient(
             circle at center,
             var(--green-mid) 0%,
-            var(--green-deep) 65%
+            var(--green-deep) 68%
         );
 }
 
 .operator-gate-box {
     width: 100%;
-    max-width: 390px;
+    max-width: 620px;
 
-    padding: 32px 26px;
+    padding: 34px 30px;
 
     text-align: center;
 
-    background: rgba(13, 43, 16, 0.96);
+    background: rgba(13, 43, 16, 0.97);
 
     border: 1px solid var(--gold-dim);
-    border-radius: 18px;
+    border-radius: 20px;
 
     box-shadow: var(--shadow);
 }
 
 .operator-gate-logo {
-    width: 72px;
-    height: 72px;
+    width: 68px;
+    height: 68px;
 
     object-fit: contain;
 
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .operator-gate-title {
     font-family: 'Bebas Neue', sans-serif;
 
-    font-size: 30px;
+    font-size: 31px;
     letter-spacing: 3px;
 
     color: var(--gold);
 }
 
 .operator-gate-subtitle {
-    margin-top: 6px;
+    margin-top: 5px;
 
-    font-size: 11px;
+    font-size: 10px;
+    letter-spacing: 3px;
+
+    color: var(--off-white);
+    opacity: 0.55;
+}
+
+.access-question {
+    margin-top: 27px;
+    margin-bottom: 14px;
+
+    font-size: 10px;
     letter-spacing: 2px;
 
     color: var(--off-white);
-    opacity: 0.65;
+    opacity: 0.7;
+}
+
+.access-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.access-card {
+    width: 100%;
+
+    padding: 22px 16px;
+
+    border: 1px solid rgba(245, 200, 66, 0.25);
+    border-radius: 14px;
+
+    background: rgba(255, 255, 255, 0.025);
+
+    color: var(--white);
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.18s ease,
+        background 0.18s ease,
+        transform 0.18s ease;
+}
+
+.access-card:hover {
+    border-color: var(--gold);
+
+    background: rgba(245, 200, 66, 0.06);
+
+    transform: translateY(-2px);
+}
+
+.access-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.access-title {
+    font-family: 'Bebas Neue', sans-serif;
+
+    font-size: 20px;
+    letter-spacing: 2px;
+
+    color: var(--gold);
+}
+
+.access-desc {
+    margin-top: 5px;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.access-detail {
+    margin-top: 7px;
+
+    font-size: 9px;
+    line-height: 1.4;
+
+    color: var(--off-white);
+    opacity: 0.55;
+}
+
+
+/* ── PIN AREA ── */
+
+.operator-pin-area {
+    display: none;
+}
+
+.operator-pin-area.visible {
+    display: block;
+}
+
+.access-back {
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.access-back button {
+    padding: 5px 0;
+
+    border: none;
+
+    background: none;
+
+    color: var(--off-white);
+
+    font-size: 11px;
+
+    cursor: pointer;
+
+    opacity: 0.7;
+}
+
+.access-back button:hover {
+    color: var(--gold);
+    opacity: 1;
 }
 
 .operator-gate-label {
     display: block;
 
-    margin-top: 28px;
     margin-bottom: 8px;
 
     font-size: 10px;
@@ -1034,7 +1147,7 @@ body.viewer-mode #liveViewer {
 .operator-enter-btn {
     width: 100%;
 
-    margin-top: 14px;
+    margin-top: 13px;
 
     padding: 13px;
 
@@ -1064,6 +1177,25 @@ body.viewer-mode #liveViewer {
     font-size: 11px;
 
     color: var(--red);
+}
+
+
+/* ── MOBILE ── */
+
+@media (max-width: 600px) {
+
+    .operator-gate-box {
+        padding: 28px 18px;
+    }
+
+    .access-options {
+        grid-template-columns: 1fr;
+    }
+
+    .access-card {
+        padding: 18px 14px;
+    }
+
 }
 
 </style>
@@ -1351,40 +1483,116 @@ if (livePath.startsWith('/live/')) {
         </div>
 
         <div class="operator-gate-subtitle">
-            OPERATOR ACCESS
+            SELAMAT DATANG
         </div>
 
-        <label
-            class="operator-gate-label"
-            for="operatorPin"
-        >
-            MASUKKAN PIN OPERATOR
-        </label>
+        <div class="access-question">
+            GIMANA KAMU MAU MENGGUNAKAN APLIKASI?
+        </div>
 
-        <input
-            id="operatorPin"
-            type="password"
-            inputmode="numeric"
-            maxlength="6"
-            autocomplete="off"
-            placeholder="••••••"
-        >
 
-        <button
-            class="operator-enter-btn"
-            onclick="enterOperatorMode()"
-        >
-            🔐 MASUK OPERATOR
-        </button>
+        <!-- PILIHAN MODE -->
+
+        <div class="access-options">
+
+            <button
+                type="button"
+                class="access-card"
+                onclick="selectAccessMode('operator')"
+            >
+
+                <div class="access-icon">🔐</div>
+
+                <div class="access-title">
+                    OPERATOR
+                </div>
+
+                <div class="access-desc">
+                    Saya mengelola pertandingan
+                </div>
+
+                <div class="access-detail">
+                    Buat Match &amp; Live Scoring
+                </div>
+
+            </button>
+
+
+            <button
+                type="button"
+                class="access-card"
+                onclick="selectAccessMode('player')"
+            >
+
+                <div class="access-icon">🎮</div>
+
+                <div class="access-title">
+                    MAIN / COBA
+                </div>
+
+                <div class="access-desc">
+                    Saya ingin mencoba bermain
+                </div>
+
+                <div class="access-detail">
+                    Gunakan fitur scoring tanpa Live
+                </div>
+
+            </button>
+
+        </div>
+
+
+        <!-- PIN OPERATOR -->
 
         <div
-            id="operatorError"
-            class="operator-error"
-        ></div>
+            id="operatorPinArea"
+            class="operator-pin-area"
+        >
+
+            <div class="access-back">
+                <button
+                    type="button"
+                    onclick="backToAccessChoice()"
+                >
+                    ← Kembali
+                </button>
+            </div>
+
+            <label
+                class="operator-gate-label"
+                for="operatorPin"
+            >
+                MASUKKAN PIN OPERATOR
+            </label>
+
+            <input
+                id="operatorPin"
+                type="password"
+                inputmode="numeric"
+                maxlength="6"
+                autocomplete="off"
+                placeholder="••••••"
+            >
+
+            <button
+                type="button"
+                class="operator-enter-btn"
+                onclick="enterOperatorMode()"
+            >
+                🔐 MASUK OPERATOR
+            </button>
+
+            <div
+                id="operatorError"
+                class="operator-error"
+            ></div>
+
+        </div>
 
     </div>
 
-</div>
+  </div>
 
   <div id="liveViewer">
 
@@ -1665,9 +1873,65 @@ if (livePath.startsWith('/live/')) {
 </div>
 
 <script>
-// ── OPERATOR MODE ──
+// ═══════════════════════════════════════
+// ACCESS MODE
+// ═══════════════════════════════════════
 
-const OPERATOR_PIN = '159357';
+const OPERATOR_PIN = '123456';
+
+let appMode = null;
+
+
+// ── PILIH MODE ──
+
+function selectAccessMode(mode) {
+
+    const options =
+        document.querySelector('.access-options');
+
+    const pinArea =
+        document.getElementById('operatorPinArea');
+
+    const error =
+        document.getElementById('operatorError');
+
+
+    error.textContent = '';
+
+
+    // OPERATOR
+    if (mode === 'operator') {
+
+        options.style.display = 'none';
+
+        pinArea.classList.add('visible');
+
+        document
+            .getElementById('operatorPin')
+            .focus();
+
+        return;
+    }
+
+
+    // PLAYER / TRIAL
+    if (mode === 'player') {
+
+        appMode = 'player';
+
+        localStorage.setItem(
+            'appMode',
+            'player'
+        );
+
+        enterPlayerMode();
+
+    }
+
+}
+
+
+// ── OPERATOR LOGIN ──
 
 function enterOperatorMode() {
 
@@ -1677,11 +1941,14 @@ function enterOperatorMode() {
     const error =
         document.getElementById('operatorError');
 
+
     if (pin === OPERATOR_PIN) {
 
+        appMode = 'operator';
+
         localStorage.setItem(
-            'operatorUnlocked',
-            'true'
+            'appMode',
+            'operator'
         );
 
         document
@@ -1690,7 +1957,11 @@ function enterOperatorMode() {
 
         error.textContent = '';
 
-        console.log('🔐 Operator Mode aktif');
+        applyAccessMode();
+
+        console.log(
+            '🔐 Operator Mode aktif'
+        );
 
     } else {
 
@@ -1701,34 +1972,138 @@ function enterOperatorMode() {
             .getElementById('operatorPin')
             .value = '';
 
+        document
+            .getElementById('operatorPin')
+            .focus();
+
     }
+
 }
+
+
+// ── PLAYER MODE ──
+
+function enterPlayerMode() {
+
+    document
+        .getElementById('operatorGate')
+        .style.display = 'none';
+
+    applyAccessMode();
+
+    console.log(
+        '🎮 Player / Trial Mode aktif'
+    );
+
+}
+
+
+// ── APPLY MODE ──
+
+function applyAccessMode() {
+
+    const createMatchBtn =
+        document.getElementById('btnCreateMatch');
+
+
+    if (appMode === 'player') {
+
+        // Player tidak boleh membuat Live Match
+        if (createMatchBtn) {
+            createMatchBtn.style.display = 'none';
+        }
+
+        // Pastikan player tidak membawa match operator
+        matchCode = null;
+
+        console.log(
+            '🎮 Player Mode: Live dinonaktifkan'
+        );
+
+    }
+
+
+    if (appMode === 'operator') {
+
+        if (createMatchBtn) {
+            createMatchBtn.style.display = '';
+        }
+
+        console.log(
+            '🔐 Operator Mode: Live tersedia'
+        );
+
+    }
+
+}
+
+
+// ── KEMBALI KE PILIHAN ──
+
+function backToAccessChoice() {
+
+    const options =
+        document.querySelector('.access-options');
+
+    const pinArea =
+        document.getElementById('operatorPinArea');
+
+    const pin =
+        document.getElementById('operatorPin');
+
+    const error =
+        document.getElementById('operatorError');
+
+
+    options.style.display = '';
+
+    pinArea.classList.remove('visible');
+
+    pin.value = '';
+
+    error.textContent = '';
+
+}
+
+
+// ── CEK AKSES SAAT LOAD ──
 
 function checkOperatorAccess() {
 
-    const isViewer =
-        window.location.pathname.startsWith('/live/');
-
-    if (isViewer) {
+    // Viewer tidak melewati access screen
+    if (isLiveViewer) {
         return;
     }
 
-    const unlocked =
-        localStorage.getItem('operatorUnlocked');
 
-    const gate =
-        document.getElementById('operatorGate');
+    const savedMode =
+        localStorage.getItem('appMode');
 
-    if (unlocked === 'true') {
 
-        gate.style.display = 'none';
+    if (
+        savedMode === 'operator' ||
+        savedMode === 'player'
+    ) {
 
-    } else {
+        appMode = savedMode;
 
-        gate.style.display = 'flex';
+        document
+            .getElementById('operatorGate')
+            .style.display = 'none';
 
+        applyAccessMode();
+
+        return;
     }
+
+
+    // Belum memilih mode
+    document
+        .getElementById('operatorGate')
+        .style.display = 'flex';
+
 }
+
 
 const POINT_VALUE = 50000;
 
@@ -1790,7 +2165,18 @@ function generateMatchCode() {
 
 async function createMatch() {
 
-  const btn = document.getElementById('btnCreateMatch');
+    // Player / Trial tidak boleh membuat Live Match
+    if (appMode !== 'operator') {
+
+        showToast(
+            '🔒 Fitur Live hanya tersedia untuk Operator'
+        );
+
+        return;
+    }
+
+    const btn =
+        document.getElementById('btnCreateMatch');
 
   btn.disabled = true;
   btn.textContent = '⏳ MEMBUAT...';
@@ -2462,6 +2848,10 @@ const isLiveViewer =
 if (isLiveViewer) {
     document.body.classList.add('viewer-mode');
 }
+
+
+// ── ACCESS MODE ──
+checkOperatorAccess();
 
 
 // ── LOAD GAME ──
