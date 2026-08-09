@@ -1871,12 +1871,24 @@ if (livePath.startsWith('/live/')) {
     </div>
   </div>
 
-  <button
-    class="btn-create-match"
-    id="btnCreateMatch"
-    onclick="createMatch()">
-    🌐 BUAT MATCH
-  </button>
+  <div style="display:flex; gap:8px; align-items:center;">
+
+    <button
+      class="btn-finish-match"
+      id="btnFinishMatch"
+      onclick="finishMatch()"
+      style="display:none;">
+      🏁 SELESAIKAN MATCH
+    </button>
+
+    <button
+      class="btn-create-match"
+      id="btnCreateMatch"
+      onclick="createMatch()">
+      🌐 BUAT MATCH
+    </button>
+
+  </div>
 </div>
 
   <!-- Round Bar -->
@@ -2426,6 +2438,7 @@ function undoLast() {
 // ── MATCH ──
 
 let matchCode = null;
+let matchStatus = 'active';
 
 function generateMatchCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -2468,6 +2481,8 @@ async function createMatch() {
 
   const code = generateMatchCode();
 
+  matchStatus = 'active';
+
   const matchData = {
     code: matchCode,
     round: round,
@@ -2475,7 +2490,7 @@ async function createMatch() {
     logs: logs,
     roundHistory: roundHistory,
     pointValue: POINT_VALUE,
-    status: 'active',
+    status: matchStatus,
     updatedAt: Date.now()
   };
 
@@ -2491,6 +2506,15 @@ async function createMatch() {
 
     matchCode = code;
     localStorage.setItem("activeMatchCode", matchCode);
+
+    const finishBtn =
+    document.getElementById('btnFinishMatch');
+
+    if (finishBtn) {
+        finishBtn.style.display = 'block';
+        finishBtn.disabled = false;
+        finishBtn.textContent = '🏁 SELESAIKAN MATCH';
+    }
 
     // Update status di halaman utama
     document.getElementById('matchStatusCode').textContent =
@@ -2536,6 +2560,87 @@ function closeMatchModal() {
 
 }
 
+async function finishMatch() {
+
+    if (!matchCode) {
+        showToast('⚠️ Belum ada Match aktif');
+        return;
+    }
+
+    if (matchStatus === 'finished') {
+        return;
+    }
+
+    const confirmFinish = confirm(
+        '🏁 Selesaikan pertandingan ini?\n\nSetelah diselesaikan, hasil akhir akan ditampilkan kepada viewer.'
+    );
+
+    if (!confirmFinish) {
+        return;
+    }
+
+    const btn = document.getElementById('btnFinishMatch');
+
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = '⏳ MENYELESAIKAN...';
+    }
+
+    try {
+
+        matchStatus = 'finished';
+
+        const matchData = {
+            code: matchCode,
+            round: round,
+            players: players,
+            logs: logs,
+            roundHistory: roundHistory,
+            status: 'finished',
+            finishedAt: Date.now(),
+            updatedAt: Date.now()
+        };
+
+        await window.firebaseSet(
+            window.firebaseRef(
+                window.firebaseDB,
+                `matches/${matchCode}`
+            ),
+            matchData
+        );
+
+        // Update tampilan operator
+        const statusEl =
+            document.getElementById('matchStatusCode');
+
+        if (statusEl) {
+            statusEl.textContent =
+                `SELESAI · ${matchCode}`;
+        }
+
+        if (btn) {
+            btn.textContent = '🏁 MATCH SELESAI';
+        }
+
+        showToast('🏁 Match berhasil diselesaikan!');
+
+    } catch (error) {
+
+        console.error(
+            '❌ FINISH MATCH ERROR:',
+            error
+        );
+
+        matchStatus = 'active';
+
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '🏁 SELESAIKAN MATCH';
+        }
+
+        showToast('❌ Gagal menyelesaikan match');
+    }
+}
 
 async function copyMatchLink() {
 
@@ -3283,13 +3388,21 @@ async function loadGame() {
 
 async function updateGame(){
 
+async function updateGame(){
+
     // 1. Simpan lokal seperti biasa
     saveGame();
 
     // 2. Render tampilan operator
     renderAll();
 
-    // 3. Kalau ada match online, kirim data ke Firebase
+    // 3. Match yang sudah selesai tidak boleh
+    //    dikirim kembali sebagai active
+    if (matchStatus === 'finished') {
+        return;
+    }
+
+    // 4. Kalau ada match online
     if (matchCode) {
 
         const matchData = {
