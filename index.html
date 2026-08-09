@@ -505,7 +505,40 @@
   .btn-close-result { flex: 1; background: transparent; border: 1px solid rgba(255,255,255,0.25); color: var(--off-white); border-radius: 10px; padding: 11px; font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: background 0.15s; }
   .btn-close-result:hover { background: rgba(255,255,255,0.08); }
   .btn-reset { flex: 1; background: var(--red); border: none; color: white; border-radius: 10px; padding: 11px; font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: 1px; transition: background 0.15s; }
+  
   .btn-reset:hover { background: var(--red-dim); }
+  /* ── SAVE SCORE BUTTON ── */
+
+.btn-save-result {
+    border: 1px solid #F5C542;
+    background: #F5C542;
+    color: #061B0A;
+
+    padding: 10px 18px;
+    border-radius: 8px;
+
+    font-family: Inter, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        background 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.btn-save-result:hover {
+    background: #FFD75A;
+    box-shadow: 0 4px 14px rgba(245, 197, 66, 0.25);
+    transform: translateY(-1px);
+}
+
+.btn-save-result:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
 
 /* BOTTOM BAR */
 .bottom-bar {
@@ -1803,8 +1836,49 @@ if (livePath.startsWith('/live/')) {
       <li>Pemain <strong>Pause</strong> tidak ikut kena dampak skor (dihitung tidak aktif).</li>
       <li>Pemain <strong>Selesai</strong> keluar dari permainan sementara.</li>
       <li>Semakin banyak lawan aktif → poin makin besar.</li>
-      <li>1 poin = <strong>Rp 50.000</strong></li>
+      <li>
+          1 poin =
+          <strong id="rulesPointValue">Rp 50.000</strong>
+      </li>
     </ul>
+    <div class="point-value-setting" id="pointValueSetting">
+
+    <div class="point-value-label">
+        💰 Nilai 1 Poin
+    </div>
+
+    <div class="point-value-control">
+
+        <div class="point-value-input-wrap">
+            <span>Rp</span>
+
+            <input
+                type="number"
+                id="pointValueInput"
+                min="0"
+                step="5000"
+                placeholder="50000"
+            >
+        </div>
+
+        <button
+            type="button"
+            class="btn-save-point-value"
+            onclick="savePointValue()"
+        >
+            SIMPAN
+        </button>
+
+    </div>
+
+    <div
+        class="point-value-current"
+        id="pointValueCurrent"
+    >
+        1 poin = Rp 50.000
+    </div>
+
+  </div>
   </div>
 
   <!-- Scorecard -->
@@ -1931,9 +2005,14 @@ if (livePath.startsWith('/live/')) {
     <div class="result-list" id="resultList"></div>
     <div class="result-summary" id="resultSummary"></div>
     <div class="result-btns">
-      <button class="btn-close-result" onclick="closeResult()">✕ Tutup</button>
-      <button class="btn-reset" onclick="resetGame()">🔄 Main Lagi</button>
-    </div>
+  <button class="btn-close-result" onclick="closeResult()">✕ Tutup</button>
+
+  <button class="btn-save-result" onclick="downloadScoreImage()">
+    📸 Simpan Score
+  </button>
+
+  <button class="btn-reset" onclick="resetGame()">🔄 Main Lagi</button>
+  </div>
   </div>
 </div>
 
@@ -2698,6 +2777,241 @@ function showResult() {
   document.getElementById('resultOverlay').classList.add('visible');
 }
 
+function downloadScoreImage() {
+
+    if (!players || players.length === 0) {
+        alert("Belum ada pemain untuk disimpan.");
+        return;
+    }
+
+    // Urutkan pemain berdasarkan skor
+    const sortedPlayers = [...players].sort(
+        (a, b) => b.score - a.score
+    );
+
+    // Ukuran gambar
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = 1200;
+    canvas.height = 1600;
+
+    // =========================
+    // BACKGROUND
+    // =========================
+
+    ctx.fillStyle = "#061B0A";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // =========================
+    // HEADER
+    // =========================
+
+    ctx.fillStyle = "#0B2A12";
+    ctx.fillRect(0, 0, canvas.width, 230);
+
+    // Garis kuning
+    ctx.fillStyle = "#F5C542";
+    ctx.fillRect(0, 225, canvas.width, 5);
+
+    // Logo / BW
+    ctx.fillStyle = "#F5C542";
+    ctx.font = "bold 42px Bebas Neue";
+    ctx.textAlign = "center";
+    ctx.fillText("BW PUTT MASTER", canvas.width / 2, 85);
+
+    ctx.font = "24px Inter";
+    ctx.fillStyle = "#A8B5A9";
+    ctx.fillText(
+        "PUTTING COMPETITION",
+        canvas.width / 2,
+        130
+    );
+
+    // =========================
+    // JUDUL
+    // =========================
+
+    ctx.fillStyle = "#F5C542";
+    ctx.font = "bold 58px Bebas Neue";
+    ctx.fillText(
+        "HASIL AKHIR",
+        canvas.width / 2,
+        315
+    );
+
+    ctx.fillStyle = "#A8B5A9";
+    ctx.font = "24px Inter";
+    ctx.fillText(
+        `${round} PUTARAN · ${players.length} PEMAIN`,
+        canvas.width / 2,
+        360
+    );
+
+    // =========================
+    // SCORECARD
+    // =========================
+
+    const tableX = 70;
+    const tableY = 430;
+    const tableWidth = 1060;
+    const rowHeight = 100;
+
+    // Header tabel
+    ctx.fillStyle = "#123A19";
+    ctx.fillRect(
+        tableX,
+        tableY,
+        tableWidth,
+        80
+    );
+
+    ctx.fillStyle = "#F5C542";
+    ctx.font = "bold 26px Bebas Neue";
+    ctx.textAlign = "left";
+    ctx.fillText("POS", tableX + 30, tableY + 50);
+    ctx.fillText("PEMAIN", tableX + 130, tableY + 50);
+
+    ctx.textAlign = "right";
+    ctx.fillText("POIN", tableX + 850, tableY + 50);
+    ctx.fillText("NILAI", tableX + 1010, tableY + 50);
+
+    // =========================
+    // PEMAIN
+    // =========================
+
+    sortedPlayers.forEach((player, index) => {
+
+        const y =
+            tableY +
+            80 +
+            index * rowHeight;
+
+        // Background row
+        ctx.fillStyle =
+            index % 2 === 0
+                ? "#0A2410"
+                : "#0D2B14";
+
+        ctx.fillRect(
+            tableX,
+            y,
+            tableWidth,
+            rowHeight
+        );
+
+        // Nomor
+        ctx.fillStyle = "#F5C542";
+        ctx.font = "bold 30px Bebas Neue";
+        ctx.textAlign = "left";
+
+        ctx.fillText(
+            `${index + 1}`,
+            tableX + 35,
+            y + 62
+        );
+
+        // Nama pemain
+        ctx.fillStyle = "#F1F1E8";
+        ctx.font = "bold 30px Inter";
+
+        ctx.fillText(
+            player.name,
+            tableX + 130,
+            y + 58
+        );
+
+        // Score
+        const scoreText =
+            player.score > 0
+                ? `+${player.score}`
+                : `${player.score}`;
+
+        ctx.fillStyle =
+            player.score >= 0
+                ? "#F5C542"
+                : "#D9534F";
+
+        ctx.font = "bold 34px Bebas Neue";
+        ctx.textAlign = "right";
+
+        ctx.fillText(
+            scoreText,
+            tableX + 850,
+            y + 60
+        );
+
+        // Nilai Rupiah
+        const money =
+            player.score * POINT_VALUE;
+
+        const moneyText =
+            money >= 0
+                ? `Rp ${money.toLocaleString("id-ID")}`
+                : `-Rp ${Math.abs(money).toLocaleString("id-ID")}`;
+
+        ctx.font = "bold 24px Inter";
+
+        ctx.fillText(
+            moneyText,
+            tableX + 1010,
+            y + 58
+        );
+    });
+
+    // =========================
+    // FOOTER
+    // =========================
+
+    const footerY =
+        tableY +
+        80 +
+        sortedPlayers.length * rowHeight +
+        80;
+
+    ctx.fillStyle = "#F5C542";
+
+    ctx.fillRect(
+        70,
+        footerY,
+        1060,
+        3
+    );
+
+    ctx.fillStyle = "#A8B5A9";
+    ctx.font = "22px Inter";
+    ctx.textAlign = "center";
+
+    ctx.fillText(
+        "BW PUTT MASTER",
+        canvas.width / 2,
+        footerY + 55
+    );
+
+    ctx.fillStyle = "#68756A";
+    ctx.font = "18px Inter";
+
+    ctx.fillText(
+        new Date().toLocaleDateString("id-ID"),
+        canvas.width / 2,
+        footerY + 90
+    );
+
+    // =========================
+    // DOWNLOAD JPG
+    // =========================
+
+    const link = document.createElement("a");
+
+    link.download =
+        `BW-Putt-Master-Score-${Date.now()}.jpg`;
+
+    link.href =
+        canvas.toDataURL("image/jpeg", 0.95);
+
+    link.click();
+}
+
 function closeResult() { document.getElementById('resultOverlay').classList.remove('visible'); }
 
 function resetGame() {
@@ -2938,6 +3252,67 @@ function showToast(msg, cls = '') {
     setTimeout(() => t.remove(), 2600);
 }
 
+function savePointValue() {
+
+    if (appMode !== 'operator') {
+        showToast('🔒 Hanya Operator yang bisa mengubah nilai poin');
+        return;
+    }
+
+    const input =
+        document.getElementById('pointValueInput');
+
+    const value =
+        Number(input.value);
+
+    if (!value || value < 0) {
+        showToast('⚠️ Masukkan nilai poin yang valid');
+        return;
+    }
+
+    POINT_VALUE = value;
+
+    localStorage.setItem(
+        'pointValue',
+        POINT_VALUE
+    );
+
+    updatePointValueUI();
+
+    // Refresh tampilan skor
+    updateGame();
+
+    showToast(
+        `💰 Nilai 1 poin diubah menjadi Rp ${POINT_VALUE.toLocaleString('id-ID')}`
+    );
+}
+
+function updatePointValueUI() {
+
+    const input =
+        document.getElementById('pointValueInput');
+
+    const current =
+        document.getElementById('pointValueCurrent');
+
+    const rulesValue =
+        document.getElementById('rulesPointValue');
+
+    if (input) {
+        input.value = POINT_VALUE;
+    }
+
+    if (current) {
+        current.textContent =
+            `1 poin = Rp ${POINT_VALUE.toLocaleString('id-ID')}`;
+    }
+
+    if (rulesValue) {
+        rulesValue.textContent =
+            `Rp ${POINT_VALUE.toLocaleString('id-ID')}`;
+    }
+}
+
 function toggleRules() {
     document.getElementById('rulesBox').classList.toggle('visible');
 }
@@ -2993,6 +3368,8 @@ checkOperatorAccess();
 
 // ── LOAD GAME ──
 loadGame();
+
+updatePointValueUI();
 
 
 // ── RENDER AWAL ──
