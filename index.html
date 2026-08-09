@@ -732,6 +732,53 @@ body.viewer-mode #liveViewer {
     letter-spacing: 2px;
 }
 
+.live-status.finished {
+    color: var(--gold);
+}
+
+/* MATCH SELESAI - VIEWER */
+.live-finished-banner {
+    display: none;
+    margin-top: 18px;
+    padding: 18px 20px;
+    border: 1px solid rgba(245, 200, 66, 0.38);
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(245, 200, 66, 0.10), rgba(255, 255, 255, 0.025));
+    text-align: center;
+}
+
+.live-finished-banner.visible {
+    display: block;
+}
+
+.live-finished-icon {
+    font-size: 25px;
+    margin-bottom: 5px;
+}
+
+.live-finished-title {
+    color: var(--gold);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.live-finished-text {
+    margin-top: 5px;
+    color: var(--off-white);
+    opacity: 0.65;
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
+.live-finished-time {
+    margin-top: 8px;
+    color: var(--gold);
+    font-family: 'JetBrains Mono';
+    font-size: 10px;
+    opacity: 0.8;
+}
+
 
 /* ═══════════════════════════════════════
    CONTENT
@@ -1402,6 +1449,43 @@ if (livePath.startsWith('/live/')) {
 
             console.log('🔥 LIVE MATCH DATA:', data);
 
+            // =====================================
+            // STATUS MATCH
+            // =====================================
+            const liveStatus = document.querySelector('.live-status');
+            const finishedBanner = document.getElementById('liveFinishedBanner');
+            const finishedTime = document.getElementById('liveFinishedTime');
+
+            if (data.status === 'finished') {
+                if (liveStatus) {
+                    liveStatus.textContent = '● SELESAI';
+                    liveStatus.classList.add('finished');
+                }
+
+                if (finishedBanner) {
+                    finishedBanner.classList.add('visible');
+                }
+
+                if (finishedTime && data.finishedAt) {
+                    const finishedDate = new Date(data.finishedAt);
+                    finishedTime.textContent =
+                        `Diselesaikan ${finishedDate.toLocaleTimeString('id-ID', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        })}`;
+                }
+            } else {
+                if (liveStatus) {
+                    liveStatus.textContent = '● LIVE';
+                    liveStatus.classList.remove('finished');
+                }
+
+                if (finishedBanner) {
+                    finishedBanner.classList.remove('visible');
+                }
+            }
+
             // Match tidak ditemukan
             if (!data) {
 
@@ -1816,6 +1900,13 @@ if (livePath.startsWith('/live/')) {
     </div>
 
 </div>
+
+    <div class="live-finished-banner" id="liveFinishedBanner">
+      <div class="live-finished-icon">🏁</div>
+      <div class="live-finished-title">MATCH SELESAI</div>
+      <div class="live-finished-text">Pertandingan telah selesai. Berikut adalah hasil akhir.</div>
+      <div class="live-finished-time" id="liveFinishedTime"></div>
+    </div>
 
     <div class="live-footer">
       © 2026 BW Putt Master by Fikri
