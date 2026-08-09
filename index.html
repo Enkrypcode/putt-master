@@ -2174,142 +2174,59 @@ function resetAllData() {
 }
 
 // ── UTILS ──
-function formatRp(val) { return Math.abs(val).toLocaleString('id-ID'); }
-function escHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function showToast(msg, cls='') {
-  const c = document.getElementById('toastContainer');
-  const t = document.createElement('div');
-  t.className = `toast ${cls}`;
-  t.textContent = msg;
-  c.appendChild(t);
-  setTimeout(() => t.remove(), 2600);
+function formatRp(val) {
+    return Math.abs(val).toLocaleString('id-ID');
 }
-function toggleRules() { document.getElementById('rulesBox').classList.toggle('visible'); }
 
-const isLiveViewer = window.location.pathname.startsWith('/live/');
+function escHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+function showToast(msg, cls = '') {
+    const c = document.getElementById('toastContainer');
+    const t = document.createElement('div');
+    t.className = `toast ${cls}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 2600);
+}
+
+function toggleRules() {
+    document.getElementById('rulesBox').classList.toggle('visible');
+}
+
+
+// ── VIEWER MODE ──
+const isLiveViewer =
+    window.location.pathname.startsWith('/live/');
 
 if (isLiveViewer) {
     document.body.classList.add('viewer-mode');
 }
 
-// ── LIVE VIEWER ──
-if (isLiveViewer) {
 
-    const matchCode = window.location.pathname.split('/')[2];
-
-    console.log("LIVE MATCH CODE:", matchCode);
-
-    if (!matchCode) {
-        console.error("Match code tidak ditemukan");
-    } else {
-
-        const matchRef = window.firebaseRef(
-            window.firebaseDB,
-            `matches/${matchCode}`
-        );
-
-        window.firebaseOnValue(matchRef, (snapshot) => {
-
-            const data = snapshot.val();
-
-            console.log("LIVE DATA:", data);
-
-            if (!data) {
-                console.error("Match tidak ditemukan:", matchCode);
-                return;
-            }
-
-            // Update informasi atas
-            const roundEl = document.querySelector(
-                '#liveViewer .live-info-box:nth-child(1) .live-info-value'
-            );
-
-            const playerCountEl = document.querySelector(
-                '#liveViewer .live-info-box:nth-child(2) .live-info-value'
-            );
-
-            if (roundEl) {
-                roundEl.textContent = data.round || 1;
-            }
-
-            if (playerCountEl) {
-                playerCountEl.textContent =
-                    data.players ? data.players.length : 0;
-            }
-
-            // Render leaderboard
-            const table = document.querySelector(
-                '#liveViewer .live-table'
-            );
-
-            if (!table) return;
-
-            const players = data.players || [];
-
-            const sortedPlayers = [...players].sort(
-                (a, b) => b.score - a.score
-            );
-
-            table.innerHTML = `
-                <div class="live-table-head">
-                    <div>POS</div>
-                    <div>PEMAIN</div>
-                    <div style="text-align:right">SKOR</div>
-                </div>
-
-                ${
-                    sortedPlayers.length === 0
-                    ?
-                    `<div class="live-player">
-                        <div></div>
-                        <div class="live-player-name">
-                            Menunggu pemain...
-                        </div>
-                        <div></div>
-                    </div>`
-                    :
-                    sortedPlayers.map((player, index) => {
-
-                        const score = player.score || 0;
-
-                        return `
-                            <div class="live-player">
-
-                                <div class="live-rank">
-                                    ${index + 1}
-                                </div>
-
-                                <div class="live-player-name">
-                                    ${escHtml(player.name)}
-                                </div>
-
-                                <div class="live-score ${score < 0 ? 'negative' : ''}">
-                                    ${score > 0 ? '+' : ''}${score}
-                                </div>
-
-                            </div>
-                        `;
-
-                    }).join('')
-                }
-            `;
-
-        });
-    }
-}
-
+// ── LOAD GAME ──
 loadGame();
 
-if(players.length===0){
+
+// ── RENDER AWAL ──
+if (players.length === 0) {
     renderAll();
 }
 
 
+// ── SERVICE WORKER ──
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
+
         navigator.serviceWorker.register("/service-worker.js")
             .then(() => console.log("Service Worker Registered"))
             .catch(err => console.log(err));
+
     });
 }
 </script>
