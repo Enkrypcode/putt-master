@@ -1285,6 +1285,59 @@ body.viewer-mode #liveViewer {
 
 }
 
+.point-value-setting {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(212, 170, 30, 0.25);
+}
+
+.point-value-label {
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.point-value-options {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.point-value-option {
+    padding: 10px 6px;
+
+    background: rgba(0, 0, 0, 0.18);
+    border: 1px solid rgba(212, 170, 30, 0.35);
+    border-radius: 8px;
+
+    color: #d8d8d8;
+    font-family: inherit;
+    font-weight: 700;
+
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.point-value-option:hover {
+    border-color: #d4aa1e;
+    transform: translateY(-1px);
+}
+
+.point-value-option.active {
+    background: #d4aa1e;
+    border-color: #d4aa1e;
+    color: #071b0b;
+
+    box-shadow:
+        0 0 0 1px rgba(212, 170, 30, 0.2),
+        0 4px 12px rgba(212, 170, 30, 0.12);
+}
+
+.point-value-current {
+    margin-top: 10px;
+    font-size: 13px;
+    opacity: 0.75;
+}
+
 </style>
 
 <script type="module">
@@ -1847,26 +1900,51 @@ if (livePath.startsWith('/live/')) {
         💰 Nilai 1 Poin
     </div>
 
-    <div class="point-value-control">
-
-        <div class="point-value-input-wrap">
-            <span>Rp</span>
-
-            <input
-                type="number"
-                id="pointValueInput"
-                min="0"
-                step="5000"
-                placeholder="50000"
-            >
-        </div>
+    <div class="point-value-options">
 
         <button
             type="button"
-            class="btn-save-point-value"
-            onclick="savePointValue()"
+            class="point-value-option"
+            data-value="25000"
+            onclick="selectPointValue(25000)"
         >
-            SIMPAN
+            25K
+        </button>
+
+        <button
+            type="button"
+            class="point-value-option"
+            data-value="50000"
+            onclick="selectPointValue(50000)"
+        >
+            50K
+        </button>
+
+        <button
+            type="button"
+            class="point-value-option"
+            data-value="75000"
+            onclick="selectPointValue(75000)"
+        >
+            75K
+        </button>
+
+        <button
+            type="button"
+            class="point-value-option"
+            data-value="100000"
+            onclick="selectPointValue(100000)"
+        >
+            100K
+        </button>
+
+        <button
+            type="button"
+            class="point-value-option"
+            data-value="200000"
+            onclick="selectPointValue(200000)"
+        >
+            200K
         </button>
 
     </div>
@@ -1878,7 +1956,7 @@ if (livePath.startsWith('/live/')) {
         1 poin = Rp 50.000
     </div>
 
-  </div>
+</div>
   </div>
 
   <!-- Scorecard -->
@@ -3252,23 +3330,7 @@ function showToast(msg, cls = '') {
     setTimeout(() => t.remove(), 2600);
 }
 
-function savePointValue() {
-
-    if (appMode !== 'operator') {
-        showToast('🔒 Hanya Operator yang bisa mengubah nilai poin');
-        return;
-    }
-
-    const input =
-        document.getElementById('pointValueInput');
-
-    const value =
-        Number(input.value);
-
-    if (!value || value < 0) {
-        showToast('⚠️ Masukkan nilai poin yang valid');
-        return;
-    }
+function selectPointValue(value) {
 
     POINT_VALUE = value;
 
@@ -3279,28 +3341,20 @@ function savePointValue() {
 
     updatePointValueUI();
 
-    // Refresh tampilan skor
     updateGame();
 
     showToast(
-        `💰 Nilai 1 poin diubah menjadi Rp ${POINT_VALUE.toLocaleString('id-ID')}`
+        `💰 Nilai 1 poin: Rp ${POINT_VALUE.toLocaleString('id-ID')}`
     );
 }
 
 function updatePointValueUI() {
-
-    const input =
-        document.getElementById('pointValueInput');
 
     const current =
         document.getElementById('pointValueCurrent');
 
     const rulesValue =
         document.getElementById('rulesPointValue');
-
-    if (input) {
-        input.value = POINT_VALUE;
-    }
 
     if (current) {
         current.textContent =
@@ -3311,6 +3365,20 @@ function updatePointValueUI() {
         rulesValue.textContent =
             `Rp ${POINT_VALUE.toLocaleString('id-ID')}`;
     }
+
+    document
+        .querySelectorAll('.point-value-option')
+        .forEach(button => {
+
+            const value =
+                Number(button.dataset.value);
+
+            button.classList.toggle(
+                'active',
+                value === POINT_VALUE
+            );
+
+        });
 }
 
 function toggleRules() {
