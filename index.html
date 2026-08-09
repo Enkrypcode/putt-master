@@ -1612,10 +1612,64 @@ if (livePath.startsWith('/live/')) {
 
         <!-- PIN OPERATOR -->
 
+        <!-- OPERATOR LOGIN -->
+
         <div
             id="operatorPinArea"
             class="operator-pin-area"
         >
+
+            <div class="access-back">
+                <button
+                    type="button"
+                    onclick="backToAccessChoice()"
+                >
+                    ← Kembali
+                </button>
+            </div>
+
+            <label
+                class="operator-gate-label"
+                for="operatorEmail"
+            >
+                EMAIL OPERATOR
+            </label>
+
+            <input
+                id="operatorEmail"
+                type="email"
+                autocomplete="username"
+                placeholder="Email operator"
+            >
+
+            <label
+                class="operator-gate-label"
+                for="operatorPassword"
+            >
+                PASSWORD
+            </label>
+
+            <input
+                id="operatorPassword"
+                type="password"
+                autocomplete="current-password"
+                placeholder="••••••••"
+            >
+
+            <button
+                type="button"
+                class="operator-enter-btn"
+                onclick="enterOperatorMode()"
+            >
+                🔐 MASUK OPERATOR
+            </button>
+
+            <div
+                id="operatorError"
+                class="operator-error"
+            ></div>
+
+        </div>
 
             <div class="access-back">
                 <button
@@ -1955,8 +2009,6 @@ if (livePath.startsWith('/live/')) {
 // ACCESS MODE
 // ═══════════════════════════════════════
 
-const OPERATOR_PIN = '159357';
-
 let appMode = null;
 
 
@@ -1985,7 +2037,7 @@ function selectAccessMode(mode) {
         pinArea.classList.add('visible');
 
         document
-            .getElementById('operatorPin')
+            .getElementById('operatorEmail')
             .focus();
 
         return;
@@ -2009,18 +2061,33 @@ function selectAccessMode(mode) {
 }
 
 
-// ── OPERATOR LOGIN ──
+// ── OPERATOR LOGIN FIREBASE ──
+async function enterOperatorMode() {
 
-function enterOperatorMode() {
+    const email =
+        document.getElementById('operatorEmail').value.trim();
 
-    const pin =
-        document.getElementById('operatorPin').value;
+    const password =
+        document.getElementById('operatorPassword').value;
 
     const error =
         document.getElementById('operatorError');
 
+    if (!email || !password) {
+        error.textContent =
+            '❌ Email dan password wajib diisi';
+        return;
+    }
 
-    if (pin === OPERATOR_PIN) {
+    error.textContent = '⏳ Memeriksa akses...';
+
+    try {
+
+        await window.firebaseSignIn(
+            window.firebaseAuth,
+            email,
+            password
+        );
 
         appMode = 'operator';
 
@@ -2033,37 +2100,31 @@ function enterOperatorMode() {
             .getElementById('operatorGate')
             .style.display = 'none';
 
-        const switchBtn =
-        document.getElementById('btnSwitchMode');
-
-        if (switchBtn) {
-          switchBtn.style.display = 'block';
-}
-
         error.textContent = '';
 
         applyAccessMode();
+
         updateSwitchModeButton();
 
-        console.log(
-            '🔐 Operator Mode aktif'
-        );
+        console.log('🔐 Operator Mode aktif');
 
-    } else {
+    } catch (error) {
 
-        error.textContent =
-            '❌ PIN Operator salah';
+        console.error('LOGIN ERROR:', error);
 
         document
-            .getElementById('operatorPin')
+            .getElementById('operatorPassword')
             .value = '';
 
         document
-            .getElementById('operatorPin')
+            .getElementById('operatorPassword')
             .focus();
 
+        document
+            .getElementById('operatorError')
+            .textContent =
+                '❌ Email atau password salah';
     }
-
 }
 
 
@@ -2135,8 +2196,11 @@ function backToAccessChoice() {
     const pinArea =
         document.getElementById('operatorPinArea');
 
-    const pin =
-        document.getElementById('operatorPin');
+    const email =
+        document.getElementById('operatorEmail');
+
+    const password =
+        document.getElementById('operatorPassword');
 
     const error =
         document.getElementById('operatorError');
@@ -2146,7 +2210,8 @@ function backToAccessChoice() {
 
     pinArea.classList.remove('visible');
 
-    pin.value = '';
+    email.value = '';
+    password.value = '';
 
     error.textContent = '';
 
@@ -2171,6 +2236,8 @@ function updateSwitchModeButton() {
 
 // ── CEK AKSES SAAT LOAD ──
 
+// ── CEK AKSES SAAT LOAD ──
+
 function checkOperatorAccess() {
 
     // Viewer tidak melewati access screen
@@ -2178,35 +2245,69 @@ function checkOperatorAccess() {
         return;
     }
 
-
     const savedMode =
         localStorage.getItem('appMode');
 
+    // PLAYER
+    if (savedMode === 'player') {
 
-    if (
-        savedMode === 'operator' ||
-        savedMode === 'player'
-    ) {
+        appMode = 'player';
 
-      appMode = savedMode;
+        document
+            .getElementById('operatorGate')
+            .style.display = 'none';
 
-      document
-          .getElementById('operatorGate')
-          .style.display = 'none';
+        applyAccessMode();
+        updateSwitchModeButton();
 
-      applyAccessMode();
-
-      updateSwitchModeButton();
-
-      return;
+        return;
     }
 
+    // OPERATOR
+    // Harus diverifikasi oleh Firebase Auth
+    window.firebaseOnAuthStateChanged(
+        window.firebaseAuth,
+        (user) => {
 
-    // Belum memilih mode
-    document
-        .getElementById('operatorGate')
-        .style.display = 'flex';
+            if (user) {
 
+                appMode = 'operator';
+
+                localStorage.setItem(
+                    'appMode',
+                    'operator'
+                );
+
+                document
+                    .getElementById('operatorGate')
+                    .style.display = 'none';
+
+                applyAccessMode();
+                updateSwitchModeButton();
+
+                console.log(
+                    '🔐 Firebase Operator aktif:',
+                    user.email
+                );
+
+            } else {
+
+                // Tidak login Firebase
+                if (savedMode === 'operator') {
+                    localStorage.removeItem('appMode');
+                }
+
+                appMode = null;
+
+                document
+                    .getElementById('operatorGate')
+                    .style.display = 'flex';
+
+                updateSwitchModeButton();
+            }
+
+        }
+    );
 }
 
 
