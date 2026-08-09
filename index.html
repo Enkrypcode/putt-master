@@ -1563,6 +1563,7 @@ async function createMatch() {
     );
 
     matchCode = code;
+    localStorage.setItem("activeMatchCode", matchCode);
 
     // Update status di halaman utama
     document.getElementById('matchStatusCode').textContent =
@@ -1977,20 +1978,125 @@ function saveGame() {
     }));
 }
 
-function loadGame() {
+async function loadGame() {
+
+    // ================================
+    // 1. Load game lokal
+    // ================================
+
     const data = localStorage.getItem("puttingGame");
 
-    if (!data) return;
+    if (data) {
 
-    const game = JSON.parse(data);
+        const game = JSON.parse(data);
 
-    players = game.players || [];
-    round = game.round || 1;
-    logs = game.logs || [];
-    nextId = game.nextId || 1;
-    history = game.history || [];
-    roundHistory = game.roundHistory || [];
+        players = game.players || [];
+        round = game.round || 1;
+        logs = game.logs || [];
+        nextId = game.nextId || 1;
+        history = game.history || [];
+        roundHistory = game.roundHistory || [];
 
+    }
+
+
+    // ================================
+    // 2. Restore match aktif
+    // ================================
+
+    const savedMatchCode =
+        localStorage.getItem("activeMatchCode");
+
+    if (savedMatchCode) {
+
+        matchCode = savedMatchCode;
+
+        console.log(
+            "🔥 Restore match:",
+            matchCode
+        );
+
+        // Update UI
+        const statusEl =
+            document.getElementById("matchStatusCode");
+
+        if (statusEl) {
+            statusEl.textContent =
+                `LIVE · ${matchCode}`;
+        }
+
+        // ================================
+        // 3. Ambil data terbaru dari Firebase
+        // ================================
+
+        try {
+
+            const matchRef =
+                window.firebaseRef(
+                    window.firebaseDB,
+                    `matches/${matchCode}`
+                );
+
+            window.firebaseOnValue(
+                matchRef,
+                (snapshot) => {
+
+                    const firebaseData =
+                        snapshot.val();
+
+                    if (!firebaseData) {
+
+                        console.warn(
+                            "⚠️ Match Firebase tidak ditemukan:",
+                            matchCode
+                        );
+
+                        return;
+                    }
+
+                    console.log(
+                        "🔥 Match berhasil dipulihkan:",
+                        firebaseData
+                    );
+
+                    // Restore data dari Firebase
+                    players =
+                        Array.isArray(firebaseData.players)
+                            ? firebaseData.players
+                            : Object.values(
+                                firebaseData.players || {}
+                            );
+
+                    round =
+                        firebaseData.round || 1;
+
+                    logs =
+                        firebaseData.logs || [];
+
+                    roundHistory =
+                        firebaseData.roundHistory || [];
+
+                    // Render operator
+                    renderAll();
+
+                },
+                {
+                    onlyOnce: true
+                }
+            );
+
+        } catch (error) {
+
+            console.error(
+                "❌ Gagal restore match:",
+                error
+            );
+
+        }
+
+    }
+
+    // Render awal
     renderAll();
 }
 
@@ -2048,6 +2154,7 @@ function resetAllData() {
         return;
 
     localStorage.removeItem("puttingGame");
+    localStorage.removeItem("activeMatchCode");
 
     players = [];
     round = 1;
