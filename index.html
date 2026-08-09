@@ -202,24 +202,26 @@
 @media (max-width: 600px) {
 
   .match-online {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
+    gap: 10px;
   }
 
   .match-online-code {
-    grid-column: 1 / -1;
     width: 100%;
+    flex: 0 0 100%;
   }
 
   .btn-finish-match,
   .btn-create-match {
-    width: 100%;
+    flex: 0 0 auto;
+
+    width: auto;
     min-width: 0;
 
     height: 42px;
-    padding: 0 8px;
+    padding: 0 14px;
 
     font-size: 12px;
     letter-spacing: 0.7px;
