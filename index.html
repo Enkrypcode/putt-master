@@ -2013,6 +2013,7 @@ function enterOperatorMode() {
         error.textContent = '';
 
         applyAccessMode();
+        updateSwitchModeButton();
 
         console.log(
             '🔐 Operator Mode aktif'
@@ -2044,14 +2045,9 @@ function enterPlayerMode() {
         .getElementById('operatorGate')
         .style.display = 'none';
 
-    const switchBtn =
-        document.getElementById('btnSwitchMode');
-
-    if (switchBtn) {
-        switchBtn.style.display = 'block';
-    }
-
     applyAccessMode();
+
+    updateSwitchModeButton();
 
     console.log(
         '🎮 Player / Trial Mode aktif'
@@ -2126,6 +2122,22 @@ function backToAccessChoice() {
 
 }
 
+function updateSwitchModeButton() {
+
+    const btn =
+        document.getElementById('btnSwitchMode');
+
+    if (!btn) return;
+
+    if (
+        appMode === 'operator' ||
+        appMode === 'player'
+    ) {
+        btn.style.display = 'block';
+    } else {
+        btn.style.display = 'none';
+    }
+}
 
 // ── CEK AKSES SAAT LOAD ──
 
@@ -2146,15 +2158,17 @@ function checkOperatorAccess() {
         savedMode === 'player'
     ) {
 
-        appMode = savedMode;
+      appMode = savedMode;
 
-        document
-            .getElementById('operatorGate')
-            .style.display = 'none';
+      document
+          .getElementById('operatorGate')
+          .style.display = 'none';
 
-        applyAccessMode();
+      applyAccessMode();
 
-        return;
+      updateSwitchModeButton();
+
+      return;
     }
 
 
