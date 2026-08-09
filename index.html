@@ -927,6 +927,145 @@ body.viewer-mode #liveViewer {
     }
 
 }
+
+/* ═══════════════════════════════════════
+   OPERATOR ACCESS
+═══════════════════════════════════════ */
+
+#operatorGate {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+        radial-gradient(
+            circle at center,
+            var(--green-mid) 0%,
+            var(--green-deep) 65%
+        );
+}
+
+.operator-gate-box {
+    width: 100%;
+    max-width: 390px;
+
+    padding: 32px 26px;
+
+    text-align: center;
+
+    background: rgba(13, 43, 16, 0.96);
+
+    border: 1px solid var(--gold-dim);
+    border-radius: 18px;
+
+    box-shadow: var(--shadow);
+}
+
+.operator-gate-logo {
+    width: 72px;
+    height: 72px;
+
+    object-fit: contain;
+
+    margin-bottom: 16px;
+}
+
+.operator-gate-title {
+    font-family: 'Bebas Neue', sans-serif;
+
+    font-size: 30px;
+    letter-spacing: 3px;
+
+    color: var(--gold);
+}
+
+.operator-gate-subtitle {
+    margin-top: 6px;
+
+    font-size: 11px;
+    letter-spacing: 2px;
+
+    color: var(--off-white);
+    opacity: 0.65;
+}
+
+.operator-gate-label {
+    display: block;
+
+    margin-top: 28px;
+    margin-bottom: 8px;
+
+    font-size: 10px;
+    letter-spacing: 2px;
+
+    color: var(--off-white);
+    opacity: 0.7;
+}
+
+#operatorPin {
+    width: 100%;
+
+    padding: 13px 14px;
+
+    border: 1px solid var(--gold-dim);
+    border-radius: 10px;
+
+    background: var(--green-deep);
+    color: var(--white);
+
+    text-align: center;
+
+    font-size: 20px;
+    letter-spacing: 8px;
+
+    outline: none;
+}
+
+#operatorPin:focus {
+    border-color: var(--gold);
+}
+
+.operator-enter-btn {
+    width: 100%;
+
+    margin-top: 14px;
+
+    padding: 13px;
+
+    border: none;
+    border-radius: 10px;
+
+    background: var(--gold);
+    color: var(--green-deep);
+
+    font-family: 'Bebas Neue', sans-serif;
+
+    font-size: 17px;
+    letter-spacing: 2px;
+
+    cursor: pointer;
+}
+
+.operator-enter-btn:hover {
+    background: var(--gold-dim);
+}
+
+.operator-error {
+    min-height: 18px;
+
+    margin-top: 10px;
+
+    font-size: 11px;
+
+    color: var(--red);
+}
+
 </style>
 
 <script type="module">
@@ -1196,6 +1335,57 @@ if (livePath.startsWith('/live/')) {
 
 </head>
 <body>
+
+  <div id="operatorGate">
+
+    <div class="operator-gate-box">
+
+        <img
+            src="/logo.png"
+            alt="BW Putt Master"
+            class="operator-gate-logo"
+        >
+
+        <div class="operator-gate-title">
+            BW PUTT MASTER
+        </div>
+
+        <div class="operator-gate-subtitle">
+            OPERATOR ACCESS
+        </div>
+
+        <label
+            class="operator-gate-label"
+            for="operatorPin"
+        >
+            MASUKKAN PIN OPERATOR
+        </label>
+
+        <input
+            id="operatorPin"
+            type="password"
+            inputmode="numeric"
+            maxlength="6"
+            autocomplete="off"
+            placeholder="••••••"
+        >
+
+        <button
+            class="operator-enter-btn"
+            onclick="enterOperatorMode()"
+        >
+            🔐 MASUK OPERATOR
+        </button>
+
+        <div
+            id="operatorError"
+            class="operator-error"
+        ></div>
+
+    </div>
+
+</div>
+
   <div id="liveViewer">
 
   <div class="live-header">
@@ -1475,6 +1665,71 @@ if (livePath.startsWith('/live/')) {
 </div>
 
 <script>
+// ── OPERATOR MODE ──
+
+const OPERATOR_PIN = '159357';
+
+function enterOperatorMode() {
+
+    const pin =
+        document.getElementById('operatorPin').value;
+
+    const error =
+        document.getElementById('operatorError');
+
+    if (pin === OPERATOR_PIN) {
+
+        localStorage.setItem(
+            'operatorUnlocked',
+            'true'
+        );
+
+        document
+            .getElementById('operatorGate')
+            .style.display = 'none';
+
+        error.textContent = '';
+
+        console.log('🔐 Operator Mode aktif');
+
+    } else {
+
+        error.textContent =
+            '❌ PIN Operator salah';
+
+        document
+            .getElementById('operatorPin')
+            .value = '';
+
+    }
+}
+
+function checkOperatorAccess() {
+
+    const isViewer =
+        window.location.pathname.startsWith('/live/');
+
+    if (isViewer) {
+        return;
+    }
+
+    const unlocked =
+        localStorage.getItem('operatorUnlocked');
+
+    const gate =
+        document.getElementById('operatorGate');
+
+    if (unlocked === 'true') {
+
+        gate.style.display = 'none';
+
+    } else {
+
+        gate.style.display = 'flex';
+
+    }
+}
+
 const POINT_VALUE = 50000;
 
 // ── STATE ──
