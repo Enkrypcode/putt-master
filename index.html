@@ -1264,6 +1264,13 @@ body.viewer-mode #liveViewer {
     onValue
   } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
 
+  import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
   const firebaseConfig = {
     apiKey: "AIzaSyAEnKIq1rQ3q5H_ds0nf3_3-1e1N5nGyZo",
     authDomain: "bw-putt-master.firebaseapp.com",
@@ -1276,6 +1283,12 @@ body.viewer-mode #liveViewer {
 
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
+  const auth = getAuth(app);
+
+  window.firebaseAuth = auth;
+  window.firebaseSignIn = signInWithEmailAndPassword;
+  window.firebaseOnAuthStateChanged = onAuthStateChanged;
+  window.firebaseSignOut = signOut;
 
   window.firebaseDB = db;
   window.firebaseRef = ref;
