@@ -1642,15 +1642,15 @@ function loadGame() {
     renderAll();
 }
 
-function updateGame(){
+async function updateGame(){
 
-    // Simpan ke localStorage
+    // 1. Simpan lokal seperti biasa
     saveGame();
 
-    // Render tampilan operator
+    // 2. Render tampilan operator
     renderAll();
 
-    // Kalau sedang ada match aktif, update Firebase
+    // 3. Kalau ada match online, kirim data ke Firebase
     if (matchCode) {
 
         const matchData = {
@@ -1663,15 +1663,28 @@ function updateGame(){
             updatedAt: Date.now()
         };
 
-        window.firebaseSet(
-            window.firebaseRef(
-                window.firebaseDB,
-                `matches/${matchCode}`
-            ),
-            matchData
-        ).catch(error => {
-            console.error('Gagal update Firebase:', error);
-        });
+        try {
+
+            await window.firebaseSet(
+                window.firebaseRef(
+                    window.firebaseDB,
+                    `matches/${matchCode}`
+                ),
+                matchData
+            );
+
+            console.log('🔥 Firebase updated:', matchCode);
+
+        } catch (error) {
+
+            console.error(
+                '❌ Gagal update Firebase:',
+                error
+            );
+
+            showToast('⚠️ Gagal sinkron ke Live');
+
+        }
 
     }
 
