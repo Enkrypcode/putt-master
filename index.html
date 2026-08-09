@@ -797,6 +797,185 @@
   window.firebaseRef = ref;
   window.firebaseSet = set;
   window.firebaseOnValue = onValue;
+
+  // ── LIVE VIEWER FIREBASE ──
+const livePath = window.location.pathname;
+
+if (livePath.startsWith('/live/')) {
+
+    const liveCode = livePath.split('/')[2];
+
+    console.log('🔥 LIVE VIEWER CODE:', liveCode);
+
+    if (liveCode) {
+
+        const liveMatchRef = ref(
+            db,
+            `matches/${liveCode}`
+        );
+
+        onValue(liveMatchRef, (snapshot) => {
+
+            const data = snapshot.val();
+
+            console.log('🔥 LIVE MATCH DATA:', data);
+
+            // Match tidak ditemukan
+            if (!data) {
+
+                console.error(
+                    '❌ Match tidak ditemukan:',
+                    liveCode
+                );
+
+                return;
+            }
+
+            // ── INFO ──
+            const infoValues =
+                document.querySelectorAll('.live-info-value');
+
+            if (infoValues.length >= 3) {
+
+                // Putaran
+                infoValues[0].textContent =
+                    data.round || 1;
+
+                // Jumlah pemain
+                const players =
+                    Array.isArray(data.players)
+                        ? data.players
+                        : [];
+
+                infoValues[1].textContent =
+                    players.length;
+
+                // Update terakhir
+                if (data.updatedAt) {
+
+                    const time =
+                        new Date(data.updatedAt);
+
+                    infoValues[2].textContent =
+                        time.toLocaleTimeString('id-ID', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        });
+
+                } else {
+
+                    infoValues[2].textContent = 'LIVE';
+
+                }
+            }
+
+
+            // ── LEADERBOARD ──
+            const table =
+                document.querySelector('.live-table');
+
+            if (!table) return;
+
+
+            // Urutkan skor tertinggi → terendah
+            const sortedPlayers =
+                [...players].sort(
+                    (a, b) => b.score - a.score
+                );
+
+
+            // Escape nama pemain
+            function escapeHtml(value) {
+
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+
+            }
+
+
+            // Header tabel
+            let html = `
+                <div class="live-table-head">
+                    <div>POS</div>
+                    <div>PEMAIN</div>
+                    <div style="text-align:right">SKOR</div>
+                </div>
+            `;
+
+
+            // Belum ada pemain
+            if (sortedPlayers.length === 0) {
+
+                html += `
+                    <div class="live-player">
+                        <div></div>
+
+                        <div class="live-player-name">
+                            Menunggu pemain...
+                        </div>
+
+                        <div></div>
+                    </div>
+                `;
+
+            } else {
+
+                sortedPlayers.forEach((player, index) => {
+
+                    const score =
+                        Number(player.score) || 0;
+
+                    const scoreClass =
+                        score < 0
+                            ? 'negative'
+                            : '';
+
+                    const scoreText =
+                        score > 0
+                            ? `+${score}`
+                            : `${score}`;
+
+
+                    html += `
+                        <div class="live-player">
+
+                            <div class="live-rank">
+                                ${index + 1}
+                            </div>
+
+                            <div class="live-player-name">
+                                ${escapeHtml(player.name)}
+                            </div>
+
+                            <div class="live-score ${scoreClass}">
+                                ${scoreText}
+                            </div>
+
+                        </div>
+                    `;
+
+                });
+
+            }
+
+
+            table.innerHTML = html;
+
+
+            console.log(
+                `✅ Viewer diperbarui: ${sortedPlayers.length} pemain`
+            );
+
+        });
+
+    }
+
+}
 </script>
 
 </head>
