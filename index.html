@@ -93,6 +93,153 @@
   /* MAIN */
   main { padding: 16px 14px 130px; max-width: 800px; margin: 0 auto; }
 
+  /* ONLINE MATCH */
+.match-online {
+  background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+  border: 1px solid var(--gold-dim);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.match-online-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.match-online-label {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--off-white);
+  opacity: 0.7;
+}
+
+.match-online-code {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  letter-spacing: 3px;
+  color: var(--gold);
+}
+
+.btn-create-match {
+  background: var(--gold);
+  border: none;
+  color: var(--green-deep);
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 14px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-create-match:hover {
+  background: var(--gold-dim);
+}
+
+.btn-create-match:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* MATCH MODAL */
+.match-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.82);
+  z-index: 250;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(4px);
+}
+
+.match-overlay.visible {
+  display: flex;
+}
+
+.match-box {
+  width: 100%;
+  max-width: 380px;
+  background: linear-gradient(160deg, var(--green-dark), #000);
+  border: 2px solid var(--gold);
+  border-radius: 18px;
+  padding: 26px 22px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.match-icon {
+  font-size: 38px;
+  margin-bottom: 8px;
+}
+
+.match-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 24px;
+  letter-spacing: 3px;
+  color: var(--gold);
+}
+
+.match-subtitle {
+  font-size: 10px;
+  color: var(--off-white);
+  opacity: 0.55;
+  margin-top: 4px;
+}
+
+.match-code-big {
+  margin: 20px 0 14px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 42px;
+  letter-spacing: 7px;
+  color: var(--gold);
+}
+
+.match-link-box {
+  background: var(--green-deep);
+  border: 1px solid rgba(245,200,66,0.25);
+  border-radius: 8px;
+  padding: 9px 10px;
+  font-size: 10px;
+  color: var(--off-white);
+  word-break: break-all;
+  margin-bottom: 14px;
+}
+
+.match-modal-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-copy-match {
+  flex: 1;
+  background: var(--gold);
+  border: none;
+  color: var(--green-deep);
+  border-radius: 9px;
+  padding: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-close-match {
+  flex: 1;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.25);
+  color: var(--off-white);
+  border-radius: 9px;
+  padding: 11px;
+  cursor: pointer;
+}
+
   /* ROUND BAR */
   .round-bar {
     display: flex; align-items: center; justify-content: space-between;
@@ -622,6 +769,36 @@
     }
   }
 </style>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+
+  import {
+    getDatabase,
+    ref,
+    set,
+    onValue
+  } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAEnKIq1rQ3q5H_ds0nf3_3-1e1N5nGyZo",
+    authDomain: "bw-putt-master.firebaseapp.com",
+    databaseURL: "https://bw-putt-master-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "bw-putt-master",
+    storageBucket: "bw-putt-master.firebasestorage.app",
+    messagingSenderId: "977366070584",
+    appId: "1:977366070584:web:6aea657643c0c45587fdcd"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  window.firebaseDB = db;
+  window.firebaseRef = ref;
+  window.firebaseSet = set;
+  window.firebaseOnValue = onValue;
+</script>
+
 </head>
 <body>
   <div id="liveViewer">
@@ -772,6 +949,23 @@
 
 <main>
 
+  <!-- ONLINE MATCH -->
+<div class="match-online">
+  <div class="match-online-info">
+    <div class="match-online-label">LIVE SCORING</div>
+    <div class="match-online-code" id="matchStatusCode">
+      OFFLINE
+    </div>
+  </div>
+
+  <button
+    class="btn-create-match"
+    id="btnCreateMatch"
+    onclick="createMatch()">
+    🌐 BUAT MATCH
+  </button>
+</div>
+
   <!-- Round Bar -->
   <div class="round-bar">
     <div>
@@ -864,6 +1058,50 @@
 
 </div>
 
+<!-- Match Modal -->
+<div class="match-overlay" id="matchOverlay">
+  <div class="match-box">
+
+    <div class="match-icon">🏆</div>
+
+    <div class="match-title">
+      MATCH ONLINE AKTIF
+    </div>
+
+    <div class="match-subtitle">
+      BAGIKAN LINK INI KE PENONTON
+    </div>
+
+    <div class="match-code-big" id="matchCodeDisplay">
+      ------
+    </div>
+
+    <div class="match-link-box" id="matchLinkDisplay">
+      -
+    </div>
+
+    <div class="match-modal-btns">
+
+      <button
+        class="btn-copy-match"
+        onclick="copyMatchLink()">
+        📋 COPY LINK
+      </button>
+
+      <button
+        class="btn-close-match"
+        onclick="closeMatchModal()">
+        TUTUP
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
 <!-- Toast -->
 <div class="toast-container" id="toastContainer"></div>
 
@@ -926,6 +1164,118 @@ function undoLast() {
     renderAll();
 
     showToast("↩ Undo berhasil!","undo-toast");
+}
+
+// ── MATCH ──
+
+let matchCode = null;
+
+function generateMatchCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  return code;
+}
+
+async function createMatch() {
+
+  const btn = document.getElementById('btnCreateMatch');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ MEMBUAT...';
+
+  const code = generateMatchCode();
+
+  const matchData = {
+    code: code,
+    round: 1,
+    players: [],
+    logs: [],
+    roundHistory: [],
+    status: 'active',
+    createdAt: Date.now()
+  };
+
+  try {
+
+    await window.firebaseSet(
+      window.firebaseRef(
+        window.firebaseDB,
+        `matches/${code}`
+      ),
+      matchData
+    );
+
+    matchCode = code;
+
+    // Update status di halaman utama
+    document.getElementById('matchStatusCode').textContent =
+      `LIVE · ${code}`;
+
+    // Buat link berdasarkan domain yang sedang digunakan
+    const liveLink =
+      `${window.location.origin}/live/${code}`;
+
+    // Isi modal
+    document.getElementById('matchCodeDisplay').textContent =
+      code;
+
+    document.getElementById('matchLinkDisplay').textContent =
+      liveLink;
+
+    // Tampilkan modal
+    document
+      .getElementById('matchOverlay')
+      .classList.add('visible');
+
+    showToast(`✅ Match ${code} berhasil dibuat!`);
+
+  } catch (error) {
+
+    console.error('CREATE MATCH ERROR:', error);
+
+    showToast('❌ Gagal membuat match');
+
+  } finally {
+
+    btn.disabled = false;
+    btn.textContent = '🌐 BUAT MATCH';
+
+  }
+}
+
+function closeMatchModal() {
+
+  document
+    .getElementById('matchOverlay')
+    .classList.remove('visible');
+
+}
+
+
+async function copyMatchLink() {
+
+  const link =
+    `${window.location.origin}/live/${matchCode}`;
+
+  try {
+
+    await navigator.clipboard.writeText(link);
+
+    showToast('📋 Link berhasil disalin!');
+
+  } catch (error) {
+
+    console.error(error);
+
+    showToast('⚠️ Gagal menyalin link');
+
+  }
+
 }
 
 // ── PLAYER MGMT ──
@@ -1294,9 +1644,36 @@ function loadGame() {
 
 function updateGame(){
 
+    // Simpan ke localStorage
     saveGame();
 
+    // Render tampilan operator
     renderAll();
+
+    // Kalau sedang ada match aktif, update Firebase
+    if (matchCode) {
+
+        const matchData = {
+            code: matchCode,
+            round: round,
+            players: players,
+            logs: logs,
+            roundHistory: roundHistory,
+            status: 'active',
+            updatedAt: Date.now()
+        };
+
+        window.firebaseSet(
+            window.firebaseRef(
+                window.firebaseDB,
+                `matches/${matchCode}`
+            ),
+            matchData
+        ).catch(error => {
+            console.error('Gagal update Firebase:', error);
+        });
+
+    }
 
 }
 
@@ -1336,6 +1713,112 @@ const isLiveViewer = window.location.pathname.startsWith('/live/');
 
 if (isLiveViewer) {
     document.body.classList.add('viewer-mode');
+}
+
+// ── LIVE VIEWER ──
+if (isLiveViewer) {
+
+    const matchCode = window.location.pathname.split('/')[2];
+
+    console.log("LIVE MATCH CODE:", matchCode);
+
+    if (!matchCode) {
+        console.error("Match code tidak ditemukan");
+    } else {
+
+        const matchRef = window.firebaseRef(
+            window.firebaseDB,
+            `matches/${matchCode}`
+        );
+
+        window.firebaseOnValue(matchRef, (snapshot) => {
+
+            const data = snapshot.val();
+
+            console.log("LIVE DATA:", data);
+
+            if (!data) {
+                console.error("Match tidak ditemukan:", matchCode);
+                return;
+            }
+
+            // Update informasi atas
+            const roundEl = document.querySelector(
+                '#liveViewer .live-info-box:nth-child(1) .live-info-value'
+            );
+
+            const playerCountEl = document.querySelector(
+                '#liveViewer .live-info-box:nth-child(2) .live-info-value'
+            );
+
+            if (roundEl) {
+                roundEl.textContent = data.round || 1;
+            }
+
+            if (playerCountEl) {
+                playerCountEl.textContent =
+                    data.players ? data.players.length : 0;
+            }
+
+            // Render leaderboard
+            const table = document.querySelector(
+                '#liveViewer .live-table'
+            );
+
+            if (!table) return;
+
+            const players = data.players || [];
+
+            const sortedPlayers = [...players].sort(
+                (a, b) => b.score - a.score
+            );
+
+            table.innerHTML = `
+                <div class="live-table-head">
+                    <div>POS</div>
+                    <div>PEMAIN</div>
+                    <div style="text-align:right">SKOR</div>
+                </div>
+
+                ${
+                    sortedPlayers.length === 0
+                    ?
+                    `<div class="live-player">
+                        <div></div>
+                        <div class="live-player-name">
+                            Menunggu pemain...
+                        </div>
+                        <div></div>
+                    </div>`
+                    :
+                    sortedPlayers.map((player, index) => {
+
+                        const score = player.score || 0;
+
+                        return `
+                            <div class="live-player">
+
+                                <div class="live-rank">
+                                    ${index + 1}
+                                </div>
+
+                                <div class="live-player-name">
+                                    ${escHtml(player.name)}
+                                </div>
+
+                                <div class="live-score ${score < 0 ? 'negative' : ''}">
+                                    ${score > 0 ? '+' : ''}${score}
+                                </div>
+
+                            </div>
+                        `;
+
+                    }).join('')
+                }
+            `;
+
+        });
+    }
 }
 
 loadGame();
