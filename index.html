@@ -656,10 +656,8 @@ body.viewer-mode #liveViewer {
 
 .live-info {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
-
-    margin-bottom: 24px;
 }
 
 .live-info-box {
@@ -676,11 +674,10 @@ body.viewer-mode #liveViewer {
 }
 
 .live-info-label {
-    font-size: 10px;
-    letter-spacing: 2.5px;
+    font-size: 9px;
+    letter-spacing: 2px;
     opacity: 0.6;
     text-transform: uppercase;
-
     white-space: nowrap;
 }
 
