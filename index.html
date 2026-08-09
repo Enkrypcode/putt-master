@@ -1980,6 +1980,11 @@ function saveGame() {
 
 async function loadGame() {
 
+    // Tunggu Firebase siap
+    while (!window.firebaseDB) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
     // ================================
     // 1. Load game lokal
     // ================================
