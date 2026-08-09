@@ -199,33 +199,30 @@
     box-shadow 0.18s ease;
 }
 
-/* =========================
-   MOBILE MATCH BUTTONS
-========================= */
 @media (max-width: 600px) {
 
   .match-online {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
+    align-items: center;
   }
 
   .match-online-code {
-    flex: 1 1 100%;
-    min-width: 0;
+    grid-column: 1 / -1;
+    width: 100%;
   }
 
   .btn-finish-match,
   .btn-create-match {
-    flex: 1 1 0;
+    width: 100%;
     min-width: 0;
 
-    height: 44px;
+    height: 42px;
     padding: 0 8px;
 
     font-size: 12px;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.7px;
 
     white-space: nowrap;
   }
