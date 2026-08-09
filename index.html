@@ -1831,7 +1831,7 @@ if (livePath.startsWith('/live/')) {
         <span class="vb-label">
             Poin
         </span>
-        <span class="vb-val">
+        <span class="vb-val" id="headerPointValue">
             Rp 50K
         </span>
     </div>
@@ -2354,7 +2354,9 @@ function checkOperatorAccess() {
 }
 
 
-const POINT_VALUE = 50000;
+let POINT_VALUE = Number(
+    localStorage.getItem('pointValue')
+) || 50000;
 
 // ── STATE ──
 let players = [];   // { id, name, score, rounds, status: 'active'|'paused'|'done' }
@@ -2443,13 +2445,14 @@ async function createMatch() {
   const code = generateMatchCode();
 
   const matchData = {
-    code: code,
-    round: 1,
-    players: [],
-    logs: [],
-    roundHistory: [],
+    code: matchCode,
+    round: round,
+    players: players,
+    logs: logs,
+    roundHistory: roundHistory,
+    pointValue: POINT_VALUE,
     status: 'active',
-    createdAt: Date.now()
+    updatedAt: Date.now()
   };
 
   try {
@@ -3216,6 +3219,20 @@ async function loadGame() {
                     roundHistory =
                         firebaseData.roundHistory || [];
 
+
+                    // Restore nilai poin dari Firebase
+                    if (firebaseData.pointValue) {
+                        POINT_VALUE = Number(firebaseData.pointValue);
+
+                        localStorage.setItem(
+                            'pointValue',
+                            POINT_VALUE
+                        );
+
+                        updatePointValueUI();
+                    }
+
+
                     // Render operator
                     renderAll();
 
@@ -3356,15 +3373,27 @@ function updatePointValueUI() {
     const rulesValue =
         document.getElementById('rulesPointValue');
 
+    const headerValue =
+        document.getElementById('headerPointValue');
+
+
     if (current) {
         current.textContent =
             `1 poin = Rp ${POINT_VALUE.toLocaleString('id-ID')}`;
     }
 
+
     if (rulesValue) {
         rulesValue.textContent =
             `Rp ${POINT_VALUE.toLocaleString('id-ID')}`;
     }
+
+
+    if (headerValue) {
+        headerValue.textContent =
+            `Rp ${POINT_VALUE.toLocaleString('id-ID')}`;
+    }
+
 
     document
         .querySelectorAll('.point-value-option')
