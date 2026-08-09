@@ -53,7 +53,16 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
   body { background: var(--green-deep); color: var(--white); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
+
+  /* LOCK SCROLL SAAT ACCESS SCREEN AKTIF */
+  html.access-lock,
+  body.access-lock {
+      height: 100%;
+      overflow: hidden !important;
+      overscroll-behavior: none;
+  }
 
   /* HEADER */
   header {
@@ -1023,6 +1032,9 @@ body.viewer-mode #liveViewer {
 #operatorGate {
     position: fixed;
     inset: 0;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
     z-index: 9999;
 
     display: flex;
@@ -1606,7 +1618,7 @@ if (livePath.startsWith('/live/')) {
 </script>
 
 </head>
-<body>
+<body class="access-lock">
 
   <div id="operatorGate">
 
@@ -2177,6 +2189,9 @@ function enterOperatorMode() {
             .getElementById('operatorGate')
             .style.display = 'none';
 
+        document.documentElement.classList.remove('access-lock');
+        document.body.classList.remove('access-lock');
+
         const switchBtn =
         document.getElementById('btnSwitchMode');
 
@@ -2218,6 +2233,9 @@ function enterPlayerMode() {
     document
         .getElementById('operatorGate')
         .style.display = 'none';
+
+    document.documentElement.classList.remove('access-lock');
+    document.body.classList.remove('access-lock');
 
     applyAccessMode();
 
@@ -2338,6 +2356,9 @@ function checkOperatorAccess() {
           .getElementById('operatorGate')
           .style.display = 'none';
 
+      document.documentElement.classList.remove('access-lock');
+      document.body.classList.remove('access-lock');
+
       applyAccessMode();
 
       updateSwitchModeButton();
@@ -2350,6 +2371,9 @@ function checkOperatorAccess() {
     document
         .getElementById('operatorGate')
         .style.display = 'flex';
+
+    document.documentElement.classList.add('access-lock');
+    document.body.classList.add('access-lock');
 
 }
 
@@ -3390,9 +3414,9 @@ function updatePointValueUI() {
 
 
     if (headerValue) {
-        headerValue.textContent =
-            `Rp ${POINT_VALUE.toLocaleString('id-ID')}`;
-    }
+    headerValue.textContent =
+        `${POINT_VALUE / 1000}K`;
+    }   
 
 
     document
@@ -3437,6 +3461,9 @@ function switchAccessMode() {
         gate.style.display = 'flex';
     }
 
+    document.documentElement.classList.add('access-lock');
+    document.body.classList.add('access-lock');
+
     // Reset pilihan PIN
     backToAccessChoice();
 
@@ -3456,6 +3483,8 @@ const isLiveViewer =
 
 if (isLiveViewer) {
     document.body.classList.add('viewer-mode');
+    document.documentElement.classList.remove('access-lock');
+    document.body.classList.remove('access-lock');
 }
 
 
