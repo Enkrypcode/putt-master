@@ -1481,6 +1481,10 @@ body.viewer-mode #liveViewer {
     opacity: 0.75;
 }
 
+.player-mode .match-online {
+    display: none !important;
+}
+
 </style>
 
 <script type="module">
@@ -2437,6 +2441,13 @@ function enterPlayerMode() {
 // ── APPLY MODE ──
 
 function applyAccessMode() {
+
+  const liveMatchBox = document.querySelector('.match-online');
+
+  if (liveMatchBox) {
+      liveMatchBox.style.display =
+          appMode === 'player' ? 'none' : '';
+  }
 
     const createMatchBtn =
         document.getElementById('btnCreateMatch');
