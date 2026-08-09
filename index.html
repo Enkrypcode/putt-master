@@ -199,6 +199,39 @@
     box-shadow 0.18s ease;
 }
 
+/* =========================
+   MOBILE MATCH BUTTONS
+========================= */
+@media (max-width: 600px) {
+
+  .match-online {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .match-online-code {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .btn-finish-match,
+  .btn-create-match {
+    flex: 1 1 0;
+    min-width: 0;
+
+    height: 44px;
+    padding: 0 8px;
+
+    font-size: 12px;
+    letter-spacing: 0.8px;
+
+    white-space: nowrap;
+  }
+
+}
+
 /* SELESAIKAN MATCH */
 .btn-finish-match {
   background: rgba(0, 0, 0, 0.18);
