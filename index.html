@@ -90,6 +90,37 @@
   .value-badge .vb-label { display: block; font-size: 8px; letter-spacing: 2px; color: var(--off-white); }
   .value-badge .vb-val { display: block; font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--gold); letter-spacing: 1px; }
 
+  .btn-switch-mode {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 100;
+
+    padding: 8px 12px;
+
+    border: 1px solid rgba(245, 200, 66, 0.35);
+    border-radius: 8px;
+
+    background: rgba(0, 0, 0, 0.15);
+    color: var(--off-white);
+
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1px;
+
+    cursor: pointer;
+
+    opacity: 0.65;
+
+    transition: 0.2s ease;
+}
+
+.btn-switch-mode:hover {
+    opacity: 1;
+    border-color: var(--gold);
+    color: var(--gold);
+}
+
   /* MAIN */
   main { padding: 16px 14px 130px; max-width: 800px; margin: 0 auto; }
 
@@ -1686,15 +1717,26 @@ if (livePath.startsWith('/live/')) {
         </div>
     </div>
     <div class="header-right">
-        <div class="value-badge">
-            <span class="vb-label">
-                Poin
-            </span>
-            <span class="vb-val">
-                Rp 50K
-            </span>
-        </div>
+
+    <div class="value-badge">
+        <span class="vb-label">
+            Poin
+        </span>
+        <span class="vb-val">
+            Rp 50K
+        </span>
     </div>
+
+    <button
+        type="button"
+        id="btnSwitchMode"
+        class="btn-switch-mode"
+        onclick="switchAccessMode()"
+    >
+        ⚙️ GANTI MODE
+    </button>
+
+</div>
 </header>
 
 <main>
@@ -2838,6 +2880,41 @@ function showToast(msg, cls = '') {
 
 function toggleRules() {
     document.getElementById('rulesBox').classList.toggle('visible');
+}
+
+function switchAccessMode() {
+
+    if (isLiveViewer) return;
+
+    const confirmSwitch = confirm(
+        'Kembali ke pilihan mode?'
+    );
+
+    if (!confirmSwitch) return;
+
+    // Hapus mode yang sedang aktif
+    localStorage.removeItem('appMode');
+
+    appMode = null;
+
+    // Tampilkan kembali access screen
+    const gate =
+        document.getElementById('operatorGate');
+
+    if (gate) {
+        gate.style.display = 'flex';
+    }
+
+    // Reset pilihan PIN
+    backToAccessChoice();
+
+    // Sembunyikan tombol sementara
+    const btn =
+        document.getElementById('btnSwitchMode');
+
+    if (btn) {
+        btn.style.display = 'none';
+    }
 }
 
 
