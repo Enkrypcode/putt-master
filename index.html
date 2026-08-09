@@ -90,13 +90,11 @@
   .value-badge .vb-label { display: block; font-size: 8px; letter-spacing: 2px; color: var(--off-white); }
   .value-badge .vb-val { display: block; font-family: 'Bebas Neue', sans-serif; font-size: 18px; color: var(--gold); letter-spacing: 1px; }
 
-  .btn-switch-mode {
-    position: fixed;
-    top: 18px;
-    right: 18px;
-    z-index: 100;
+.btn-switch-mode {
+    display: none;
+    position: static;
 
-    padding: 8px 12px;
+    padding: 7px 10px;
 
     border: 1px solid rgba(245, 200, 66, 0.35);
     border-radius: 8px;
@@ -113,6 +111,14 @@
     opacity: 0.65;
 
     transition: 0.2s ease;
+
+    white-space: nowrap;
+}
+
+.btn-switch-mode:hover {
+    opacity: 1;
+    border-color: var(--gold);
+    color: var(--gold);
 }
 
 .btn-switch-mode:hover {
@@ -1997,6 +2003,13 @@ function enterOperatorMode() {
             .getElementById('operatorGate')
             .style.display = 'none';
 
+        const switchBtn =
+        document.getElementById('btnSwitchMode');
+
+        if (switchBtn) {
+          switchBtn.style.display = 'block';
+}
+
         error.textContent = '';
 
         applyAccessMode();
@@ -2031,12 +2044,18 @@ function enterPlayerMode() {
         .getElementById('operatorGate')
         .style.display = 'none';
 
+    const switchBtn =
+        document.getElementById('btnSwitchMode');
+
+    if (switchBtn) {
+        switchBtn.style.display = 'block';
+    }
+
     applyAccessMode();
 
     console.log(
         '🎮 Player / Trial Mode aktif'
     );
-
 }
 
 
