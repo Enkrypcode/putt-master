@@ -809,12 +809,12 @@ if (livePath.startsWith('/live/')) {
 
     if (liveCode) {
 
-        const liveMatchRef = ref(
-            db,
+        const liveMatchRef = window.firebaseRef(
+            window.firebaseDB,
             `matches/${liveCode}`
         );
 
-        onValue(liveMatchRef, (snapshot) => {
+        window.firebaseOnValue(liveMatchRef, (snapshot) => {
 
             const data = snapshot.val();
 
@@ -831,7 +831,24 @@ if (livePath.startsWith('/live/')) {
                 return;
             }
 
-            // ── INFO ──
+            // =====================================
+            // NORMALISASI PLAYERS
+            // =====================================
+
+            const rawPlayers = data.players || [];
+
+            const players = Array.isArray(rawPlayers)
+                ? rawPlayers
+                : Object.values(rawPlayers);
+
+            console.log('🔥 RAW PLAYERS:', rawPlayers);
+            console.log('🔥 PLAYERS:', players);
+
+
+            // =====================================
+            // INFO ATAS
+            // =====================================
+
             const infoValues =
                 document.querySelectorAll('.live-info-value');
 
@@ -842,11 +859,6 @@ if (livePath.startsWith('/live/')) {
                     data.round || 1;
 
                 // Jumlah pemain
-                const players =
-                    Array.isArray(data.players)
-                        ? data.players
-                        : [];
-
                 infoValues[1].textContent =
                     players.length;
 
@@ -868,24 +880,40 @@ if (livePath.startsWith('/live/')) {
                     infoValues[2].textContent = 'LIVE';
 
                 }
+
             }
 
 
-            // ── LEADERBOARD ──
+            // =====================================
+            // LEADERBOARD
+            // =====================================
+
             const table =
                 document.querySelector('.live-table');
 
-            if (!table) return;
+            if (!table) {
+
+                console.error(
+                    '❌ .live-table tidak ditemukan'
+                );
+
+                return;
+            }
 
 
             // Urutkan skor tertinggi → terendah
             const sortedPlayers =
                 [...players].sort(
-                    (a, b) => b.score - a.score
+                    (a, b) =>
+                        (Number(b.score) || 0) -
+                        (Number(a.score) || 0)
                 );
 
 
-            // Escape nama pemain
+            // =====================================
+            // ESCAPE HTML
+            // =====================================
+
             function escapeHtml(value) {
 
                 return String(value)
@@ -898,21 +926,37 @@ if (livePath.startsWith('/live/')) {
             }
 
 
-            // Header tabel
+            // =====================================
+            // HEADER
+            // =====================================
+
             let html = `
+
                 <div class="live-table-head">
+
                     <div>POS</div>
+
                     <div>PEMAIN</div>
-                    <div style="text-align:right">SKOR</div>
+
+                    <div style="text-align:right">
+                        SKOR
+                    </div>
+
                 </div>
+
             `;
 
 
-            // Belum ada pemain
+            // =====================================
+            // BELUM ADA PEMAIN
+            // =====================================
+
             if (sortedPlayers.length === 0) {
 
                 html += `
+
                     <div class="live-player">
+
                         <div></div>
 
                         <div class="live-player-name">
@@ -920,10 +964,19 @@ if (livePath.startsWith('/live/')) {
                         </div>
 
                         <div></div>
+
                     </div>
+
                 `;
 
-            } else {
+            }
+
+
+            // =====================================
+            // ADA PEMAIN
+            // =====================================
+
+            else {
 
                 sortedPlayers.forEach((player, index) => {
 
@@ -942,6 +995,7 @@ if (livePath.startsWith('/live/')) {
 
 
                     html += `
+
                         <div class="live-player">
 
                             <div class="live-rank">
@@ -949,14 +1003,17 @@ if (livePath.startsWith('/live/')) {
                             </div>
 
                             <div class="live-player-name">
-                                ${escapeHtml(player.name)}
+                                ${escapeHtml(player.name || '-')}
                             </div>
 
-                            <div class="live-score ${scoreClass}">
+                            <div
+                                class="live-player-score ${scoreClass}"
+                            >
                                 ${scoreText}
                             </div>
 
                         </div>
+
                     `;
 
                 });
@@ -964,18 +1021,18 @@ if (livePath.startsWith('/live/')) {
             }
 
 
+            // =====================================
+            // TAMPILKAN
+            // =====================================
+
             table.innerHTML = html;
-
-
-            console.log(
-                `✅ Viewer diperbarui: ${sortedPlayers.length} pemain`
-            );
 
         });
 
     }
 
 }
+
 </script>
 
 </head>
